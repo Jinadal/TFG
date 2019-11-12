@@ -35,15 +35,12 @@ public class WingedEdge : ScriptableObject
 
             if (e.LeftFace == null && e.RightFace == null)
             {
-                Debug.Log("ENTRO AQUI");
                 e.Vertex1.Edges.Remove(e);
                 e.Vertex2.Edges.Remove(e);
                 Edges.Remove(e);
             }
         }
-        Debug.Log("Antes de borrar " + Faces.Count);
         Faces.Remove(f);
-        Debug.Log("Despues de borrar " + Faces.Count);
     }
 
     public List<FaceWE> AddVertex(FaceWE f, VertexWE v)
@@ -290,9 +287,10 @@ public class WingedEdge : ScriptableObject
         return false;
     }
 
-    public void CheckEdge(List<EdgeWE> edges)
+    public void CheckEdge()
      {
-         foreach (EdgeWE e in edges)
+        bool aux = false;
+         foreach (EdgeWE e in Edges)
          {
              if (e.LeftFace != null && e.RightFace != null)
              {
@@ -321,23 +319,16 @@ public class WingedEdge : ScriptableObject
                  if(InsideCC(Rightcc,RightccRadius,LeftOppositeVertex) || InsideCC(Leftcc,LeftccRadius,RightOppositeVertex))
                  {
                     List<FaceWE> newfaces = FlipEdge(e);
-                    List<EdgeWE> newedges = new List<EdgeWE>();
-                    Debug.Log(newfaces.Count);
-                    for (int m = 0; m < newfaces.Count; m++)
-                    {
-                        for (int n = 0; n < newfaces[m].Edges.Count; n++)
-                        {
-                            if (!newedges.Contains(newfaces[m].Edges[n]))
-                            {
-                                Debug.Log("PRUEBA DEL CONTAIN");
-                                newedges.Add(newfaces[m].Edges[n]);
-                            }
-                        }
-                    }
-                    CheckEdge(newedges);
+                    aux = true;
+                    break;
                  }
              }
          }
+         if(aux)
+        {
+            CheckEdge();
+        }
+         
      }
     // 
     public bool InsideCC(Vector3 c, double r, VertexWE p)
@@ -460,10 +451,3 @@ public class WingedEdge : ScriptableObject
     }
 }
 
-
-
-
-
-
-
-// O EL CHECKEDGE ESTA MAL O EL FLIPEDGE ESTA MAL PORQUE NO LO HACE CUANDO DEBE Y REVISAR TAMBIEN LA RECOGIDA DE NUEVAS CARAS AL HACER EL FLIP

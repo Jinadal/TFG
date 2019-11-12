@@ -59,17 +59,12 @@ public class Delaunay : MonoBehaviour
         }
         //for (int i = 0; i < wingededge.Edges.Count; i++)
         //{
-            wingededge.CheckEdge(wingededge.Edges);
+           wingededge.CheckEdge();
         //}
     }
 
     public void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        for (int i = 0; i < wingededge.Vertices.Count; i++)
-        {
-            Gizmos.DrawSphere(wingededge.Vertices[i].Position, 1f);
-        }
         for(int i = 0; i < wingededge.Faces.Count; i++)
         {
             if(i%2 == 0)
@@ -90,5 +85,13 @@ public class Delaunay : MonoBehaviour
         {
             Gizmos.DrawLine(wingededge.Edges[i].Vertex1.Position, wingededge.Edges[i].Vertex2.Position);
         }
+        Gizmos.color = Color.red;
+        for (int i = 0; i < wingededge.Vertices.Count; i++)
+        {
+            Gizmos.DrawSphere(wingededge.Vertices[i].Position, 1f);
+        }
+        Gizmos.color = Color.black;
+        Gizmos.DrawSphere(wingededge.Vertices[wingededge.Vertices.Count-1].Position, 1f);
+
     }
 }
