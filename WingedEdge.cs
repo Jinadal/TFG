@@ -425,29 +425,29 @@ public class WingedEdge : ScriptableObject
         return f;
     }
 
-    public void DeleteAll()
+    public bool IsFaceBorder(FaceWE f)
     {
-        Edges.Clear();
-        Vertices.Clear();
-        Faces.Clear();
-    }
-
-    public void Mensaje()
-    {
-        foreach(FaceWE f in Faces)
+        foreach (EdgeWE e in f.Edges)
         {
-            Debug.Log("LA FACE COMPUESTA POR LOS SIGUIENTES LADOS :");
-            foreach(EdgeWE e in f.Edges)
+            if (e.LeftFace == null || e.RightFace == null)
             {
-                Debug.Log("LADO COMPUESTO POR LOS VERTICES = " + e.Vertex1.id + " y " + e.Vertex2.id);
-                Debug.Log("Y LAS CARAS A SUS LADOS SON :");
-                Debug.Log("CARA DERECHA = " + e.RightFace.Edges[0].Vertex1.id + +e.RightFace.Edges[0].Vertex2.id + e.RightFace.Edges[1].Vertex1.id + +e.RightFace.Edges[1].Vertex2.id + e.RightFace.Edges[2].Vertex1.id + +e.RightFace.Edges[2].Vertex2.id);
-                if(e.LeftFace!=null)
-                Debug.Log("CARA IZQUIERDA = " + e.LeftFace.Edges[0].Vertex1.id + +e.LeftFace.Edges[0].Vertex2.id + e.LeftFace.Edges[1].Vertex1.id + +e.LeftFace.Edges[1].Vertex2.id + e.LeftFace.Edges[2].Vertex1.id + +e.LeftFace.Edges[2].Vertex2.id);
-
+                return true;
             }
-            Debug.Log("||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||");
         }
+
+        List<VertexWE> v = GetFaceVertices(f);
+
+        foreach (VertexWE vertex in v)
+        {
+            foreach (EdgeWE e in vertex.Edges)
+            {
+                if (e.LeftFace == null || e.RightFace == null)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

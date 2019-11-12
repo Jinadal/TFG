@@ -57,10 +57,24 @@ public class Delaunay : MonoBehaviour
             
 
         }
-        //for (int i = 0; i < wingededge.Edges.Count; i++)
-        //{
-           wingededge.CheckEdge();
-        //}
+
+        wingededge.CheckEdge();
+
+        List<FaceWE> faceToRemove = new List<FaceWE>();
+
+        for (int i = wingededge.Faces.Count - 1; i >= 0; i--)
+        {
+            if (wingededge.IsFaceBorder(wingededge.Faces[i]))
+            {
+                faceToRemove.Add(wingededge.Faces[i]);
+            }
+        }
+
+        for (int i = 0; i < faceToRemove.Count; i++)
+        {
+            wingededge.RemoveFace(faceToRemove[i]);
+        }
+
     }
 
     public void OnDrawGizmos()
