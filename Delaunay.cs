@@ -7,6 +7,12 @@ public class Delaunay : MonoBehaviour
     public float x;
     public float y;
     public int points = 3;
+    public bool Delaunay_Vertices = true;
+    public bool Delaunay_Triangulation = true;
+    public bool Voronoi_Vertices;
+    public bool Voronoi_Diagram;
+    public bool Circunferations;
+    
     WingedEdge wingededge;
     List<Vector3> pointlist = new List<Vector3>();
     void Start()
@@ -188,52 +194,66 @@ public class Delaunay : MonoBehaviour
 
     public void OnDrawGizmos()
     {
-        //for(int i = 0; i < wingededge.Faces.Count; i++)
-        //{
-        //    if(i%2 == 0)
-        //    {
-        //        Gizmos.color = Color.blue;
-        //    }
-        //    else
-        //    {
-        //        Gizmos.color = Color.magenta;
-        //    }
-        //    List<VertexWE> v = wingededge.GetFaceVertices(wingededge.Faces[i]);
-        //    Vector3 cc = wingededge.Faces[i].FaceCircumcenter;
-        //    float r = (float)CalculateRadius(cc, v[0], v[1], v[2]);
-        //    Gizmos.DrawWireSphere(cc, r);
-        //}
-        Gizmos.color = Color.green;
-        for (int i = 0; i < wingededge.Edges.Count; i++)
+        if (Circunferations)
         {
-            Gizmos.DrawLine(wingededge.Edges[i].Vertex1.Position, wingededge.Edges[i].Vertex2.Position);
+            for (int i = 0; i < wingededge.Faces.Count; i++)
+            {
+                if (i % 2 == 0)
+                {
+                    Gizmos.color = Color.blue;
+                }
+                else
+                {
+                    Gizmos.color = Color.magenta;
+                }
+                List<VertexWE> v = wingededge.GetFaceVertices(wingededge.Faces[i]);
+                Vector3 cc = wingededge.Faces[i].FaceCircumcenter;
+                float r = (float)CalculateRadius(cc, v[0], v[1], v[2]);
+                Gizmos.DrawWireSphere(cc, r);
+            }
+        }
+        Gizmos.color = Color.green;
+        if (Delaunay_Triangulation)
+        {
+            for (int i = 0; i < wingededge.Edges.Count; i++)
+            {
+                Gizmos.DrawLine(wingededge.Edges[i].Vertex1.Position, wingededge.Edges[i].Vertex2.Position);
+            }
         }
         Gizmos.color = Color.red;
-        for (int i = 0; i < wingededge.Vertices.Count; i++)
+        if (Delaunay_Vertices)
         {
-            Gizmos.DrawSphere(wingededge.Vertices[i].Position, 1f);
-        }
-        for(int i = 0; i < wingededge.Faces.Count; i++)
-        {
-            for(int j = 0; j < wingededge.Faces[i].Edges.Count; j++)
+            for (int i = 0; i < wingededge.Vertices.Count; i++)
             {
-                if (wingededge.Faces[i].Edges[j].LeftFace != null && wingededge.Faces[i].Edges[j].LeftFace.FaceCircumcenter != wingededge.Faces[i].FaceCircumcenter)
+                Gizmos.DrawSphere(wingededge.Vertices[i].Position, 1f);
+            }
+        }
+        if (Voronoi_Diagram)
+        {
+            for (int i = 0; i < wingededge.Faces.Count; i++)
+            {
+                for (int j = 0; j < wingededge.Faces[i].Edges.Count; j++)
                 {
-                    Gizmos.DrawLine(wingededge.Faces[i].FaceCircumcenter, wingededge.Faces[i].Edges[j].LeftFace.FaceCircumcenter);
+                    if (wingededge.Faces[i].Edges[j].LeftFace != null && wingededge.Faces[i].Edges[j].LeftFace.FaceCircumcenter != wingededge.Faces[i].FaceCircumcenter)
+                    {
+                        Gizmos.DrawLine(wingededge.Faces[i].FaceCircumcenter, wingededge.Faces[i].Edges[j].LeftFace.FaceCircumcenter);
+                    }
+                    if (wingededge.Faces[i].Edges[j].RightFace != null && wingededge.Faces[i].Edges[j].RightFace.FaceCircumcenter != wingededge.Faces[i].FaceCircumcenter)
+                    {
+                        Gizmos.DrawLine(wingededge.Faces[i].FaceCircumcenter, wingededge.Faces[i].Edges[j].RightFace.FaceCircumcenter);
+                    }
+                    Debug.Log(j);
                 }
-                if (wingededge.Faces[i].Edges[j].RightFace != null && wingededge.Faces[i].Edges[j].RightFace.FaceCircumcenter != wingededge.Faces[i].FaceCircumcenter)
-                {
-                    Gizmos.DrawLine(wingededge.Faces[i].FaceCircumcenter, wingededge.Faces[i].Edges[j].RightFace.FaceCircumcenter);
-                }
-                Debug.Log(j);
             }
         }
         Gizmos.color = Color.black;
-        for(int i = 0; i < wingededge.Faces.Count; i++)
+        if (Voronoi_Vertices)
         {
-            Gizmos.DrawSphere(wingededge.Faces[i].FaceCircumcenter, 1f);
+            for (int i = 0; i < wingededge.Faces.Count; i++)
+            {
+                Gizmos.DrawSphere(wingededge.Faces[i].FaceCircumcenter, 1f);
+            }
         }
-        
         //Gizmos.DrawSphere(wingededge.Vertices[wingededge.Vertices.Count-1].Position, 1f);
 
     }
