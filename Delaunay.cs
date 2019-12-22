@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Delaunay : MonoBehaviour
 {
     public float x;
@@ -11,9 +12,11 @@ public class Delaunay : MonoBehaviour
     public bool Delaunay_Triangulation = true;
     public bool Voronoi_Vertices;
     public bool Voronoi_Diagram;
+    public bool Wall;
     public bool Circunferations;
     
     WingedEdge wingededge;
+    List<Vector3> convexHull;
     List<Vector3> pointlist = new List<Vector3>();
     void Start()
     {
@@ -47,8 +50,6 @@ public class Delaunay : MonoBehaviour
         wingededge.AddFace(wingededge.Vertices[0], wingededge.Vertices[2], wingededge.Vertices[3]);
 
         Continue();
-
-        
     }
 
     public void Continue()
@@ -89,7 +90,152 @@ public class Delaunay : MonoBehaviour
 
             wingededge.Faces[i].FaceCircumcenter = CalculateCircumscribedCircumference(vertices[0], vertices[1], vertices[2]);
         }
+
+        GrahamScan();
     }
+    public void GrahamScan()
+    {
+        Vector3[] auxList = new Vector3[wingededge.Faces.Count];
+        Vector3[] wall;
+        int aux = 0;
+        int add = 0;
+        for (int i = 0; i < auxList.Length; i++)
+        {
+            auxList[i] = wingededge.Faces[i].FaceCircumcenter;
+        }
+        Quicksort(auxList, 0, auxList.Length - 1);
+        for (int j = 0; j < auxList.Length; j++)
+        {
+            if (auxList[j].z > -15 && auxList[j].z < y + 15 && auxList[j].x > -15 && auxList[j].x < x + 15)
+            {
+                aux++;
+            }
+        }
+        wall = new Vector3[aux];
+        for (int i = 0; i < auxList.Length; i++)
+        {
+            if (auxList[i].z > -15 && auxList[i].z < y + 15 && auxList[i].x > -15 && auxList[i].x < x + 15)
+            {
+                wall[add] = auxList[i];
+                add++;
+            }
+        }
+
+        Vector3[] wallDegree = DegreeSort(wall);
+        convexHull = new List<Vector3>();
+
+        convexHull.Add(wallDegree[0]);
+        convexHull.Add(wallDegree[1]);
+        convexHull.Add(wallDegree[2]);
+
+        for(int i = 3; i < wallDegree.Length; i++)
+        {
+            while (orientation(convexHull[convexHull.Count - 2], convexHull[convexHull.Count - 1], wallDegree[i]) != 2)
+                convexHull.Remove(convexHull[convexHull.Count - 1]);
+            convexHull.Add(wallDegree[i]);
+        }
+    }
+    int orientation(Vector3 p, Vector3 q, Vector3 r)
+    {
+        float val = (q.z - p.z) * (r.x - q.x) -
+                  (q.x - p.x) * (r.z - q.z);
+
+        if (val == 0) return 0;  // colinear 
+        return (val > 0) ? 1 : 2; // clock or counterclock wise 
+    }
+    Vector3[] DegreeSort(Vector3[] points)
+    {
+        Vector3[] aux = new Vector3[points.Length];
+        float[] degree = new float[points.Length];
+        degree[0] = 0.0f;
+        aux[0] = points[0];
+        for(int i = 1; i < points.Length; i++)
+        {
+            degree[i] = calculateDegree(points[0],points[i]);
+        }
+
+        points = DegreeQuicksort(degree, 0, degree.Length - 1, points);
+
+        return points;
+    }
+    Vector3[] DegreeQuicksort(float[] list, int first, int last, Vector3[] points)
+    {
+        int i, j, central;
+        float pivote;
+        central = (first + last) / 2;
+        pivote = list[central];
+        i = first;
+        j = last;
+        do
+        {
+            while (list[i] < pivote) i++;
+            while (list[j] > pivote) j--;
+            if (i <= j)
+            {
+                float temp;
+                Vector3 temp3;
+                temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+                temp3 = points[i];
+                points[i] = points[j];
+                points[j] = temp3;
+
+                i++;
+                j--;
+            }
+        } while (i <= j);
+
+        if (first < j)
+        {
+            DegreeQuicksort(list, first, j, points);
+        }
+        if (i < last)
+        {
+            DegreeQuicksort(list, i, last, points);
+        }
+        return points;
+    }
+    float calculateDegree(Vector3 A, Vector3 B)
+    {
+        Vector3 C = new Vector3(A.x + 1, 0, A.z);
+
+        return Vector3.SignedAngle(C, B, A);
+    }
+
+    public void Quicksort(Vector3[] list, int first, int last)
+    {
+        int i, j, central;
+        float pivote;
+        central = (first + last) / 2;
+        pivote = list[central].z;
+        i = first;
+        j = last;
+        do
+        {
+            while (list[i].z < pivote) i++;
+            while (list[j].z > pivote) j--;
+            if (i <= j)
+            {
+                Vector3 temp;
+                temp = list[i];
+                list[i] = list[j];
+                list[j] = temp;
+                i++;
+                j--;
+            }
+        } while (i <= j);
+
+        if (first < j)
+        {
+            Quicksort(list, first, j);
+        }
+        if (i < last)
+        {
+            Quicksort(list, i, last);
+        }
+    }
+
     public void CheckEdge(WingedEdge w)
     {
         bool aux = false;
@@ -242,7 +388,6 @@ public class Delaunay : MonoBehaviour
                     {
                         Gizmos.DrawLine(wingededge.Faces[i].FaceCircumcenter, wingededge.Faces[i].Edges[j].RightFace.FaceCircumcenter);
                     }
-                    Debug.Log(j);
                 }
             }
         }
@@ -255,6 +400,18 @@ public class Delaunay : MonoBehaviour
             }
         }
         //Gizmos.DrawSphere(wingededge.Vertices[wingededge.Vertices.Count-1].Position, 1f);
-
+        if(Wall)
+        {
+            Gizmos.color = Color.black;
+            for(int i = 0; i < convexHull.Count; i++)
+            {
+                if(i != convexHull.Count - 1)
+                    Gizmos.DrawLine(convexHull[i], convexHull[i + 1]);
+                else
+                {
+                    Gizmos.DrawLine(convexHull[i], convexHull[0]);
+                }
+            }
+        }
     }
 }
