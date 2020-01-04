@@ -323,13 +323,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b258de83b721249438d571259e8f6387, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  x: 100
-  y: 100
-  points: 150
+  x: 500
+  y: 500
+  points: 100
   Delaunay_Vertices: 1
   Delaunay_Triangulation: 1
   Voronoi_Vertices: 0
   Voronoi_Diagram: 0
+  Wall: 0
   Circunferations: 0
 --- !u!4 &1844473611
 Transform:

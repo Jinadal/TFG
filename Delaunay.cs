@@ -95,53 +95,65 @@ public class Delaunay : MonoBehaviour
     }
     public void GrahamScan()
     {
-        Vector3[] auxList = new Vector3[wingededge.Faces.Count];
+        Vector3[] auxList = new Vector3[wingededge.Faces.Count]; 
         Vector3[] wall;
         int aux = 0;
         int add = 0;
         for (int i = 0; i < auxList.Length; i++)
         {
-            auxList[i] = wingededge.Faces[i].FaceCircumcenter;
+            auxList[i] = wingededge.Faces[i].FaceCircumcenter;  //Vornoi Vertexs
         }
-        Quicksort(auxList, 0, auxList.Length - 1);
+        Quicksort(auxList, 0, auxList.Length - 1); 
+
         for (int j = 0; j < auxList.Length; j++)
         {
-            if (auxList[j].z > -15 && auxList[j].z < y + 15 && auxList[j].x > -15 && auxList[j].x < x + 15)
-            {
+            if (auxList[j].z > -15 && auxList[j].z < y + 15 && auxList[j].x > -15 && auxList[j].x < x + 15) //Limit de vertex we want 
+            {                                                                                               //to a distance
                 aux++;
             }
         }
-        wall = new Vector3[aux];
+        wall = new Vector3[aux];                                //Valid vertexs inside the wall
         for (int i = 0; i < auxList.Length; i++)
         {
             if (auxList[i].z > -15 && auxList[i].z < y + 15 && auxList[i].x > -15 && auxList[i].x < x + 15)
             {
-                wall[add] = auxList[i];
+                wall[add] = auxList[i];             
                 add++;
             }
         }
 
-        Vector3[] wallDegree = DegreeSort(wall);
+        Vector3[] wallDegree = DegreeSort(wall);                //Sort the array by their angle with the lowest vector
+        
         convexHull = new List<Vector3>();
-
+    
         convexHull.Add(wallDegree[0]);
         convexHull.Add(wallDegree[1]);
         convexHull.Add(wallDegree[2]);
-
+    
         for(int i = 3; i < wallDegree.Length; i++)
         {
-            while (orientation(convexHull[convexHull.Count - 2], convexHull[convexHull.Count - 1], wallDegree[i]) != 2)
+            while(orientation(wallDegree[i], convexHull[convexHull.Count - 2], convexHull[convexHull.Count - 1] ) != 2)
+            { 
                 convexHull.Remove(convexHull[convexHull.Count - 1]);
+            }
             convexHull.Add(wallDegree[i]);
         }
     }
-    int orientation(Vector3 p, Vector3 q, Vector3 r)
+    int orientation(Vector3 C, Vector3 B, Vector3 A)
     {
-        float val = (q.z - p.z) * (r.x - q.x) -
-                  (q.x - p.x) * (r.z - q.z);
-
-        if (val == 0) return 0;  // colinear 
-        return (val > 0) ? 1 : 2; // clock or counterclock wise 
+        float aux = (B.x - A.x) * (C.z - A.z) - (B.z - A.z) * (C.x - A.x);
+        if(aux > 0)
+        {
+            return 1;
+        }
+        if(aux < 0)
+        {
+            return 2;
+        }
+        else
+        {
+            return 0;
+        }
     }
     Vector3[] DegreeSort(Vector3[] points)
     {
@@ -153,9 +165,14 @@ public class Delaunay : MonoBehaviour
         {
             degree[i] = calculateDegree(points[0],points[i]);
         }
+        for (int m = 0; m < points.Length; m++)
+        {
+            Debug.Log("vector "+points[m].x + " , " + points[m].z);
+            Debug.Log("angulo "+degree[m]);
 
+        }
         points = DegreeQuicksort(degree, 0, degree.Length - 1, points);
-
+        
         return points;
     }
     Vector3[] DegreeQuicksort(float[] list, int first, int last, Vector3[] points)
@@ -200,7 +217,7 @@ public class Delaunay : MonoBehaviour
     {
         Vector3 C = new Vector3(A.x + 1, 0, A.z);
 
-        return Vector3.SignedAngle(C, B, A);
+        return Vector3.Angle(C - A, B - A);
     }
 
     public void Quicksort(Vector3[] list, int first, int last)
