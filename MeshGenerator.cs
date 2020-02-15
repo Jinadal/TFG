@@ -25,6 +25,12 @@ public class MeshGenerator : MonoBehaviour
                     Vector3 b = w.Vertices[i].Edges[j].LeftFace.FaceCircumcenter;
                     Vector3 c = w.Vertices[i].Edges[j].RightFace.FaceCircumcenter;
 
+                    
+
+                    b = PointInLine(a, b);
+                    c = PointInLine(a, c);
+
+
                     if (!IsClockwise(a, b, c))
                     {
                         Vector3 aux2 = c;
@@ -32,24 +38,6 @@ public class MeshGenerator : MonoBehaviour
                         b = aux2;
                     }
 
-                    if (a.z > b.z)
-                        b.z += 3;
-                    else
-                        b.z -= 3;
-                    if (a.x > b.x)
-                        b.x += 3;
-                    else
-                        b.x -= 3;
-                    if (a.z > c.z)
-                        c.z += 3;
-                    else
-                        c.z -= 3;
-                    if (a.x > c.x)
-                        c.x += 3;
-                    else
-                        c.x -= 3;
-
-                    
                     vertices.Add(a);
                     vertices.Add(b);
                     vertices.Add(c);
@@ -63,8 +51,47 @@ public class MeshGenerator : MonoBehaviour
                 }
             }
         }
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
+        mesh.vertices = vertices.ToArray();                             //  y - y1      y2 - y1
+        mesh.triangles = triangles.ToArray();                           //  x - x1   =  x2 - x1
+    }
+
+    Vector3 PointInLine(Vector3 A, Vector3 B)
+    {
+        Vector3 v = new Vector3(B.x - A.x, 0, B.z - A.z); 
+        
+
+        B.x = A.x + (float)(0.9 * v.x);
+        B.z = A.z + (float)(0.9 * v.z);
+        return B;
+    }
+
+   // public void GenerateMesh(WingedEdge w)
+   // {
+   //     
+   //
+   //
+   //     for(int i = 0; i < w.Vertices.Count; i++)
+   //     {
+   //         List<Vector3> polygonVertex = new List<Vector3>();
+   //         for (int j = 0; j < w.Vertices[i].Edges.Count; j++)
+   //         {
+   //             polygonVertex.Add(w.Vertices[i].Edges[j].LeftFace.FaceCircumcenter);
+   //         }
+   //         createMesh(polygonVertex);
+   //     }
+   //
+   // }
+
+    void createMesh(List<Vector3> p)
+    {
+        gameObject.AddComponent<MeshFilter>();
+        gameObject.AddComponent<MeshRenderer>();
+        List<int> triangles = new List<int>();
+        List<Vector3> vertices = new List<Vector3>();
+        Mesh mesh = new Mesh();
+        GetComponent<MeshFilter>().mesh = mesh;
+
+
     }
 
     public bool IsClockwise(Vector3 a, Vector3 b, Vector3 c)

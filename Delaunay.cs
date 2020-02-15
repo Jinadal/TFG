@@ -8,10 +8,14 @@ public class Delaunay : MonoBehaviour
     public float x;
     public float y;
     public int points = 3;
-    public bool Delaunay_Vertices = true;
-    public bool Delaunay_Triangulation = true;
+
+    [Range(1, 3)]
+    public int Size;
+
+    public bool Delaunay_Vertices = false;
+    public bool Delaunay_Triangulation = false;
     public bool Voronoi_Vertices;
-    public bool Voronoi_Diagram;
+    public bool Voronoi_Diagram = false;
     public bool Wall;
     public bool Circunferations;
     
@@ -34,6 +38,24 @@ public class Delaunay : MonoBehaviour
 
     void Initializate()
     {
+        if(Size == 1)
+        {
+            x = Random.Range(100, 200);
+            y = Random.Range(100, 200);
+            points = 25;
+        }
+        if (Size == 2)
+        {
+            x = Random.Range(200, 500);
+            y = Random.Range(200, 500);
+            points = 100;
+        }
+        if (Size == 3)
+        {
+            x = Random.Range(500, 900);
+            y = Random.Range(500, 900);
+            points = 200;
+        }
         wingededge = ScriptableObject.CreateInstance("WingedEdge") as WingedEdge;
 
         for(int i = 0; i < points; i++)
@@ -92,6 +114,8 @@ public class Delaunay : MonoBehaviour
         }
 
         GrahamScan();
+        MeshGenerator meshGen = GetComponent<MeshGenerator>();
+        meshGen.GenerateMesh(wingededge);
     }
     public void GrahamScan()
     {
@@ -165,12 +189,7 @@ public class Delaunay : MonoBehaviour
         {
             degree[i] = calculateDegree(points[0],points[i]);
         }
-        for (int m = 0; m < points.Length; m++)
-        {
-            Debug.Log("vector "+points[m].x + " , " + points[m].z);
-            Debug.Log("angulo "+degree[m]);
-
-        }
+        
         points = DegreeQuicksort(degree, 0, degree.Length - 1, points);
         
         return points;
