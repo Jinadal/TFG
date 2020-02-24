@@ -9,6 +9,7 @@ public class Delaunay : MonoBehaviour
     public float y;
     public int points = 3;
 
+    public bool UseAuto = false;
     [Range(1, 3)]
     public int Size;
 
@@ -38,23 +39,26 @@ public class Delaunay : MonoBehaviour
 
     void Initializate()
     {
-        if(Size == 1)
+        if (UseAuto)
         {
-            x = Random.Range(100, 200);
-            y = Random.Range(100, 200);
-            points = 25;
-        }
-        if (Size == 2)
-        {
-            x = Random.Range(200, 500);
-            y = Random.Range(200, 500);
-            points = 100;
-        }
-        if (Size == 3)
-        {
-            x = Random.Range(500, 900);
-            y = Random.Range(500, 900);
-            points = 200;
+            if (Size == 1)
+            {
+                x = Random.Range(100, 200);
+                y = Random.Range(100, 200);
+                points = 25;
+            }
+            if (Size == 2)
+            {
+                x = Random.Range(200, 500);
+                y = Random.Range(200, 500);
+                points = 100;
+            }
+            if (Size == 3)
+            {
+                x = Random.Range(500, 900);
+                y = Random.Range(500, 900);
+                points = 200;
+            }
         }
         wingededge = ScriptableObject.CreateInstance("WingedEdge") as WingedEdge;
 

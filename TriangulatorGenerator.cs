@@ -17,29 +17,31 @@ public class TriangulatorGenerator : MonoBehaviour
                 {
                     float x = w.Vertices[i].Edges[j].LeftFace.FaceCircumcenter.x;
                     float y = w.Vertices[i].Edges[j].LeftFace.FaceCircumcenter.z;
-                    if(!vertices2D.Contains(new Vector2(x,y)))
-                        vertices2D.Add(new Vector2(x, y));
 
+                    Vector2 b = new Vector2(x, y);
+                    b = PointInLine(w.Vertices[i].Position, b);
+
+                    if(!vertices2D.Contains(b))
+                        vertices2D.Add(b);
 
                     float x2 = w.Vertices[i].Edges[j].RightFace.FaceCircumcenter.x;
                     float y2 = w.Vertices[i].Edges[j].RightFace.FaceCircumcenter.z;
-                    if(!vertices2D.Contains(new Vector2(x2,y2)))
-                        vertices2D.Add(new Vector2(x2, y2));
+
+                    Vector2 c = new Vector2(x2, y2);
+                    c = PointInLine(w.Vertices[i].Position, c);
+
+                    if (!vertices2D.Contains(c))
+                        vertices2D.Add(c);
                 }
             }
-            //Debug.Log(vertices2D.Count);
-            if (vertices2D.Count == 3)
+
+
+
+            if (vertices2D.Count >= 3)
             {
-                if(!IsClockwise(vertices2D[0], vertices2D[1], vertices2D[2]))
-                {
-                    Vector2 aux = vertices2D[1];
-                    vertices2D[1] = vertices2D[2];
-                    vertices2D[2] = aux;
-                }
-            }
-            if (vertices2D.Count > 3)
                 GrahamScan(vertices2D);
-            //Debug.Log(vertices2D.Count);
+            }
+
             Triangulate(vertices2D.ToArray());
             vertices2D.Clear();
         }
@@ -47,7 +49,15 @@ public class TriangulatorGenerator : MonoBehaviour
         // Use the triangulator to get indices for creating triangles
     }
 
+    private Vector2 PointInLine(Vector3 A, Vector2 B)
+    {
+        Vector2 v = new Vector3(B.x - A.x, B.y - A.z);
 
+
+        B.x = A.x + (float)(0.9 * v.x);
+        B.y = A.z + (float)(0.9 * v.y);
+        return B;
+    }
 
     private void GrahamScan(List<Vector2> v)
     {
@@ -70,7 +80,6 @@ public class TriangulatorGenerator : MonoBehaviour
             convexHull[2] = aux;
         }
 
-        //Debug.Log(v.Count);
         for (int i = 3; i < wallDegree.Count; i++)
         {
             while (orientation(wallDegree[i], convexHull[convexHull.Count - 2], convexHull[convexHull.Count - 1]) != 2)
@@ -79,8 +88,6 @@ public class TriangulatorGenerator : MonoBehaviour
             }
             convexHull.Add(wallDegree[i]);
         }
-        //Debug.Log(v.Count);
-        //return convexHull;
     }
     int orientation(Vector2 C, Vector2 B, Vector2 A)
     {
