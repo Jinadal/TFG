@@ -114,7 +114,7 @@ public class Delaunay : MonoBehaviour
         }
 
         GrahamScan();
-        MeshGenerator meshGen = GetComponent<MeshGenerator>();
+        TriangulatorGenerator meshGen = GetComponent<TriangulatorGenerator>();
         meshGen.GenerateMesh(wingededge);
     }
     public void GrahamScan()
@@ -127,7 +127,7 @@ public class Delaunay : MonoBehaviour
         {
             auxList[i] = wingededge.Faces[i].FaceCircumcenter;  //Vornoi Vertexs
         }
-        Quicksort(auxList, 0, auxList.Length - 1); 
+        Quicksort(auxList, 0, auxList.Length - 1);
 
         for (int j = 0; j < auxList.Length; j++)
         {
